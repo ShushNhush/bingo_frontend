@@ -44,7 +44,7 @@ const GameRoom = () => {
         const currentTime = Math.floor(Date.now() / 1000);
   
         if (decodedToken.exp > currentTime) {
-          const wsURL = `wss://bingo.gudbergsen.com/api/rooms/${decodedToken.roomNumber}`;
+          const wsURL = `ws://bingo.gudbergsen.com/api/rooms/${decodedToken.roomNumber}`;
           const playerData = {id: decodedToken.id, name: decodedToken.sub};
           
           setPlayer(playerData);
