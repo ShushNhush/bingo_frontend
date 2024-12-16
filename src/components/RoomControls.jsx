@@ -13,7 +13,7 @@ const RoomControls = ({
     }
 
     try {
-      const response = await fetch("https://bingo.gudbergsen.com/api/rooms", {
+      const response = await fetch("https://bingoapi.gudbergsen.com/api/rooms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ room: { rules }, player: { name: hostName } }),
@@ -47,7 +47,7 @@ const RoomControls = ({
     try {
       const roomNumber = parseInt(roomNumberInput, 10);
       const response = await fetch(
-        `https://bingo.gudbergsen.com/api/rooms/${roomNumber}/join`,
+        `https://bingoapi.gudbergsen.com/api/rooms/${roomNumber}/join`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

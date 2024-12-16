@@ -44,7 +44,7 @@ const GameRoom = () => {
         const currentTime = Math.floor(Date.now() / 1000);
   
         if (decodedToken.exp > currentTime) {
-          const wsURL = `ws://bingo.gudbergsen.com/api/rooms/${decodedToken.roomNumber}`;
+          const wsURL = `ws://bingoapi.gudbergsen.com/api/rooms/${decodedToken.roomNumber}`;
           const playerData = {id: decodedToken.id, name: decodedToken.sub};
           
           setPlayer(playerData);
@@ -143,7 +143,7 @@ const GameRoom = () => {
   const fetchBoard = async (roomNumber, playerId) => {
     try {
       const response = await fetch(
-        `https://bingo.gudbergsen.com/api/rooms/${roomNumber}/players/${playerId}`,
+        `https://bingoapi.gudbergsen.com/api/rooms/${roomNumber}/players/${playerId}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
