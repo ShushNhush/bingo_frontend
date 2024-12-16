@@ -6,6 +6,7 @@ import Notifications from "./Notifications";
 import { useEffect, useState} from "react";
 import { jwtDecode } from "jwt-decode";
 import {useNavigate, useParams } from "react-router-dom";
+import NextNumber from "./NextNumber";
 
 const GameRoom = () => {
 
@@ -16,6 +17,8 @@ const GameRoom = () => {
   const [player, setPlayer] = useState(null);
   const [host, setHost] = useState(null);
   const [currentNotification, setCurrentNotification] = useState(null);
+  const [currentNumber, setCurrentNumber] = useState(null);
+
 
   const addNotification = (message) => {
     setCurrentNotification(message); // Send only the latest message
@@ -41,7 +44,7 @@ const GameRoom = () => {
         const currentTime = Math.floor(Date.now() / 1000);
   
         if (decodedToken.exp > currentTime) {
-          const wsURL = `ws://localhost:7171/api/rooms/${decodedToken.roomNumber}`;
+          const wsURL = `wss://bingo.gudbergsen.com/api/rooms/${decodedToken.roomNumber}`;
           const playerData = {id: decodedToken.id, name: decodedToken.sub};
           
           setPlayer(playerData);
@@ -93,9 +96,10 @@ const GameRoom = () => {
             break;
 
         case "nextNumber":
-          const nextNumber = response.payload.nextNumber;
-          setMessages((prevMessages) => [...prevMessages, nextNumber])
-          break;
+              const nextNumber = response.payload.nextNumber;
+              setCurrentNumber(nextNumber); // Set the current number
+              // addNotification(`Next number: ${nextNumber}`);
+              break;
 
           case "submit-result":
             const isWinner = response.payload.isWinner;
@@ -139,7 +143,7 @@ const GameRoom = () => {
   const fetchBoard = async (roomNumber, playerId) => {
     try {
       const response = await fetch(
-        `http://localhost:7171/api/rooms/${roomNumber}/players/${playerId}`,
+        `https://bingo.gudbergsen.com/api/rooms/${roomNumber}/players/${playerId}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -160,6 +164,9 @@ const GameRoom = () => {
     <div>
       {isConnected ? (
         <>
+        <NextNumber
+          currentNumber={currentNumber}
+        />
           <HostControls
             player={player}
             host={host}
