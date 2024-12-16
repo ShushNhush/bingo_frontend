@@ -42,5 +42,5 @@ jobs:
           SSH_USER="jetty"
           DO_DROPLET_IP=${{ secrets.DO_DROPLET_IP }}
           APP_NAME="bingo"
-          REMOTE_PATH="/home/jetty/deployment/site/$APP_NAME/"
+          REMOTE_PATH="/home/jetty/remote/site/$APP_NAME/"
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./dist/ $SSH_USER@$DO_DROPLET_IP:$REMOTE_PATH
