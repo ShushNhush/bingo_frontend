@@ -7,6 +7,7 @@ import App from './App.jsx'
 import GameRoom from './components/GameRoom.jsx'
 import { createBrowserRouter, Route, createRoutesFromElements, RouterProvider} from 'react-router-dom'
 
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
