@@ -9,6 +9,7 @@ import {useNavigate, useParams } from "react-router-dom";
 import NextNumber from "./NextNumber";
 import "../styles/GameRoom.css";
 import styled from "styled-components";
+import Loader from "../assets/Loader";
 
 const SubmitButton = styled.button`
   margin-top: 20px;
@@ -199,9 +200,9 @@ const GameRoom = () => {
         Your browser does not support the video tag.
       </video>
     
-    <div className="main-container">
       
       {isConnected ? (
+    <div className="main-container">
         <>
         <NextNumber
           currentNumber={currentNumber}
@@ -221,10 +222,10 @@ const GameRoom = () => {
        {isWinCondition && <button onClick={submit} className="submit">Submit Bingo!</button>}
           </div>
         </>
-      ) : (
-        <p>Connecting to WebSocket...</p>
-      )}
     </div>
+      ) : (
+      <Loader></Loader>
+      )}
     </>
   );
 };
