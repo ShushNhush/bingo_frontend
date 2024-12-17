@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "clean": "rmdir /s /q node_modules && del package-lock.json && rmdir /s /q .parcel-cache && rmdir /s /q build",
+    "clean:windows": "rmdir /s /q node_modules && del package-lock.json"
   },
   "dependencies": {
     "jwt-decode": "^4.0.0",

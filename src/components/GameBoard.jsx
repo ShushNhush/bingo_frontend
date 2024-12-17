@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
 // Styled Components
@@ -14,11 +14,7 @@ const Grid = styled.div`
   justify-content: center;
 `;
 
-const Cell = styled.div.withConfig({
-  // Prevent props like toggled, isFree, and isHighlighted from being passed to the DOM
-  shouldForwardProp: (prop) =>
-    !["toggled", "isFree", "isHighlighted"].includes(prop),
-})`
+const Cell = styled.div`
   position: relative;
   width: 60px;
   height: 60px;
@@ -26,97 +22,107 @@ const Cell = styled.div.withConfig({
   justify-content: center;
   align-items: center;
   font-family: Impact, fantasy;
-  border: ${({ toggled, isFree }) =>
-    toggled || isFree ? "1px solid #7CFC00;" : "1px solid violet"};
-  box-shadow: ${({ toggled, isFree }) =>
-    toggled || isFree ? "0 0 20px #7CFC00;" : "0 0 20px violet"};
-  border-radius: 8px;
-  background-color: ${({ toggled, isFree }) =>
-    toggled || isFree ? "#32CD32;" : "#fff"};
-  color: ${({ toggled, isFree }) =>
-    toggled || isFree ? "#white;" : "darkslategrey"};
-  cursor: ${({ isFree }) => (isFree ? "default" : "pointer")};
-  font-weight: ${({ isFree }) => (isFree ? "bold" : "normal")};
 
-  /* Highlight current number with a red circle */
-  &::after {
-    content: "";
-    display: ${({ isHighlighted }) => (isHighlighted ? "block" : "none")};
-    position: absolute;
-    width: 80%;
-    height: 80%;
-    border: 3px solid red;
-    border-radius: 50%;
-    pointer-events: none; /* Allow clicks to pass through */
-  }
+  /* Dynamic Styling */
+  border: ${({ state }) =>
+    state === "highlighted"
+      ? "2px solid red"
+      : state === "toggled"
+      ? "2px solid #7CFC00"
+      : "2px solid violet"};
+
+  background-color: ${({ state }) =>
+    state === "highlighted"
+      ? "#FFDDDD"
+      : state === "toggled"
+      ? "#32CD32"
+      : "#fff"};
+
+  box-shadow: ${({ state }) =>
+    state === "highlighted" ? "0 0 10px red" : "none"};
+
+  color: ${({ state }) =>
+    state === "toggled" ? "white" : "darkslategrey"};
+
+  border-radius: 8px;
+  cursor: ${({ isFree }) => (isFree ? "not-allowed" : "pointer")};
 `;
 
+const GameBoard = ({ board, currentNumber, setIsWinCondition }) => {
+  if (!board) return <p>No board data available</p>;
 
+  // Memoize boardArray to prevent unnecessary recreation
+  const boardArray = useMemo(() => JSON.parse(board), [board]);
 
-const GameBoard = ({ board, socket, currentNumber, setIsWinCondition }) => {
-  if (!board) {
-    return <p>No board data available</p>;
-  }
-
-  // Parse the board string into a 2D array
-  const boardArray = JSON.parse(board);
-
-  // State to track toggled cells
-  const [toggled, setToggled] = useState(
+  // State to manage cell states: 'default', 'highlighted', or 'toggled'
+  const [cellStates, setCellStates] = useState(
     boardArray.map((row) =>
-      row.map((cell) => (cell === "FREE" ? true : false)) // "FREE" cells are toggled by default
+      row.map((cell) => (cell === "FREE" ? "toggled" : "default")) // Set "FREE" as "toggled"
     )
   );
 
-  const submit = () => {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-      const messagePayload = { action: "submit" };
-      socket.send(JSON.stringify(messagePayload));
-    } else {
-      alert("WebSocket is not connected or has been closed.");
-      console.error("Attempted to send a message on a closed WebSocket.");
-    }
+  // Update highlight state when currentNumber changes
+  useEffect(() => {
+    setCellStates((prev) =>
+      prev.map((row, rowIndex) =>
+        row.map((cell, colIndex) => {
+          const isCurrentNumber =
+            boardArray[rowIndex][colIndex].toString() === currentNumber?.toString();
+          return isCurrentNumber && prev[rowIndex][colIndex] !== "toggled"
+            ? "highlighted"
+            : prev[rowIndex][colIndex];
+        })
+      )
+    );
+  }, [currentNumber, boardArray]);
+
+  // Handle cell click
+  const handleCellClick = (rowIndex, colIndex) => {
+    if (boardArray[rowIndex][colIndex] === "FREE") return; // Prevent clicks on FREE cells
+
+    setCellStates((prev) =>
+      prev.map((row, rIdx) =>
+        row.map((cell, cIdx) => {
+          if (rIdx === rowIndex && cIdx === colIndex) {
+            return cell === "toggled" ? "default" : "toggled";
+          }
+          return cell;
+        })
+      )
+    );
   };
 
-  const toggleCell = (rowIndex, colIndex) => {
-    if (boardArray[rowIndex][colIndex] === "FREE") return; // Prevent toggling "FREE" cells
-
-    setToggled((prev) => {
-      const newToggled = prev.map((row, rIdx) =>
-        row.map((cell, cIdx) =>
-          rIdx === rowIndex && cIdx === colIndex ? !cell : cell
-        )
-      );
-      return newToggled;
-    });
-  };
-
-  const checkWinCondition = () => {
-    for (let i = 0; i < 5; i++) {
-      if (
-        toggled[i].every((cell) => cell) || // Check row
-        toggled.map((row) => row[i]).every((cell) => cell) // Check column
-      ) {
-        return true;
+  // Check for a win condition (row, column, diagonal)
+  useEffect(() => {
+    const checkWinCondition = () => {
+      // Check rows
+      for (let i = 0; i < 5; i++) {
+        if (cellStates[i].every((state) => state === "toggled")) return true;
       }
-    }
 
-    // Check diagonals
-    const diagonal1 = toggled.map((row, idx) => row[idx]).every((cell) => cell);
-    const diagonal2 = toggled.map((row, idx) => row[4 - idx]).every((cell) => cell);
+      // Check columns
+      for (let i = 0; i < 5; i++) {
+        if (cellStates.map((row) => row[i]).every((state) => state === "toggled"))
+          return true;
+      }
 
-    return diagonal1 || diagonal2;
-  };
+      // Check diagonals
+      const diagonal1 = cellStates.map((row, idx) => row[idx]);
+      const diagonal2 = cellStates.map((row, idx) => row[4 - idx]);
+      if (
+        diagonal1.every((state) => state === "toggled") ||
+        diagonal2.every((state) => state === "toggled")
+      )
+        return true;
 
-  const hasWon = checkWinCondition();
+      return false;
+    };
 
-  if (hasWon) {
-    setIsWinCondition(true)
-  }
- else {
-  setIsWinCondition(false)
- }
-  
+    // Update win condition in parent
+    const hasWon = checkWinCondition();
+    setIsWinCondition(hasWon);
+  }, [cellStates, setIsWinCondition]);
+
   return (
     <BoardContainer>
       <Grid>
@@ -124,18 +130,15 @@ const GameBoard = ({ board, socket, currentNumber, setIsWinCondition }) => {
           row.map((cell, colIndex) => (
             <Cell
               key={`${rowIndex}-${colIndex}`}
-              toggled={toggled[rowIndex][colIndex]}
+              state={cellStates[rowIndex][colIndex]}
               isFree={cell === "FREE"}
-              isHighlighted={cell.toString() === currentNumber.toString()} 
-              // Highlight if matches currentNumber
-              onClick={() => toggleCell(rowIndex, colIndex)}
+              onClick={() => handleCellClick(rowIndex, colIndex)}
             >
               {cell}
             </Cell>
           ))
         )}
       </Grid>
-      
     </BoardContainer>
   );
 };
