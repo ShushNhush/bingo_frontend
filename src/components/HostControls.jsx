@@ -16,7 +16,7 @@ const HostControls = ({ player, host, socket, isConnected }) => {
   return (
     <>
       {player && host && player.id === host.id && (
-        <button onClick={pullNumber}>Pull Number</button>
+        <button onClick={pullNumber} className="pull">Pull Number</button>
       )}
     </>
   );

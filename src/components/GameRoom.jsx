@@ -7,6 +7,15 @@ import { useEffect, useState} from "react";
 import { jwtDecode } from "jwt-decode";
 import {useNavigate, useParams } from "react-router-dom";
 import NextNumber from "./NextNumber";
+import "../styles/GameRoom.css";
+import styled from "styled-components";
+
+const SubmitButton = styled.button`
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+`;
 
 const GameRoom = () => {
 
@@ -18,7 +27,30 @@ const GameRoom = () => {
   const [host, setHost] = useState(null);
   const [currentNotification, setCurrentNotification] = useState(null);
   const [currentNumber, setCurrentNumber] = useState(null);
+  const [isWinCondition, setIsWinCondition] = useState(false);
 
+  const submit = () => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      const messagePayload = { action: "submit" };
+      socket.send(JSON.stringify(messagePayload));
+    } else {
+      alert("WebSocket is not connected or has been closed.");
+      console.error("Attempted to send a message on a closed WebSocket.");
+    }
+  };
+
+  const pullNumber = () => {
+    if (socket && isConnected) {
+      socket.send(
+        JSON.stringify({
+          action: "pullNumber",
+          player: { id: player.id, name: player.name },
+        })
+      );
+    } else {
+      alert("WebSocket is not connected");
+    }
+  };
 
   const addNotification = (message) => {
     setCurrentNotification(message); // Send only the latest message
@@ -48,7 +80,7 @@ const GameRoom = () => {
           const playerData = {id: decodedToken.id, name: decodedToken.sub};
           
           setPlayer(playerData);
-  
+          setCurrentNumber(urlNumber);
           initializeWebSocket(wsURL, playerData)
 
           // Fetch the board
@@ -161,26 +193,39 @@ const GameRoom = () => {
     }
   };
   return (
-    <div>
+    <>
+    <video className="video-background" autoPlay loop muted playsInline>
+        <source src="/background.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    
+    <div className="main-container">
+      
       {isConnected ? (
         <>
         <NextNumber
           currentNumber={currentNumber}
         />
-          <HostControls
-            player={player}
-            host={host}
-            socket={socket}
-            isConnected={isConnected}
-          />
+          
           <Notifications newMessage={currentNotification}/>
-          <GameBoard board={player.board} socket={socket}/>
-          <Chat messages={messages} socket={socket} isConnected={isConnected} />
+          <GameBoard board={player.board} socket={socket} currentNumber={currentNumber} setIsWinCondition={setIsWinCondition} />
+        
+          <div className="button-container">
+
+          
+         
+
+          {player && host && player.id === host.id && (
+        <button onClick={pullNumber} className="pull">Pull Number</button>
+      )}
+       {isWinCondition && <button onClick={submit} className="submit">Submit Bingo!</button>}
+          </div>
         </>
       ) : (
         <p>Connecting to WebSocket...</p>
       )}
     </div>
+    </>
   );
 };
 

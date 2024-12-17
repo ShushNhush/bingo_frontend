@@ -12,7 +12,7 @@ const NumberDisplay = styled.div`
   font-size: 2.5rem;
   font-weight: bold;
   color: white;
-  background-color: #4caf50;
+  background-color: #32CD32;
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
 `;

@@ -1,6 +1,59 @@
 import React, { useState } from "react";
+import styled from "styled-components";
 
-const GameBoard = ({ board, socket }) => {
+// Styled Components
+const BoardContainer = styled.div`
+  padding: 20px;
+  text-align: center;
+`;
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  justify-content: center;
+`;
+
+const Cell = styled.div.withConfig({
+  // Prevent props like toggled, isFree, and isHighlighted from being passed to the DOM
+  shouldForwardProp: (prop) =>
+    !["toggled", "isFree", "isHighlighted"].includes(prop),
+})`
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Impact, fantasy;
+  border: ${({ toggled, isFree }) =>
+    toggled || isFree ? "1px solid #7CFC00;" : "1px solid violet"};
+  box-shadow: ${({ toggled, isFree }) =>
+    toggled || isFree ? "0 0 20px #7CFC00;" : "0 0 20px violet"};
+  border-radius: 8px;
+  background-color: ${({ toggled, isFree }) =>
+    toggled || isFree ? "#32CD32;" : "#fff"};
+  color: ${({ toggled, isFree }) =>
+    toggled || isFree ? "#white;" : "darkslategrey"};
+  cursor: ${({ isFree }) => (isFree ? "default" : "pointer")};
+  font-weight: ${({ isFree }) => (isFree ? "bold" : "normal")};
+
+  /* Highlight current number with a red circle */
+  &::after {
+    content: "";
+    display: ${({ isHighlighted }) => (isHighlighted ? "block" : "none")};
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border: 3px solid red;
+    border-radius: 50%;
+    pointer-events: none; /* Allow clicks to pass through */
+  }
+`;
+
+
+
+const GameBoard = ({ board, socket, currentNumber, setIsWinCondition }) => {
   if (!board) {
     return <p>No board data available</p>;
   }
@@ -15,33 +68,30 @@ const GameBoard = ({ board, socket }) => {
     )
   );
 
-  
-    const submit = () => {
-      if (socket && socket.readyState === WebSocket.OPEN) {
-          const messagePayload = {
-              action: "submit",
-          };
-          socket.send(JSON.stringify(messagePayload));
-      } else {
-          alert("WebSocket is not connected or has been closed.");
-          console.error("Attempted to send a message on a closed WebSocket.");
-      }
+  const submit = () => {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      const messagePayload = { action: "submit" };
+      socket.send(JSON.stringify(messagePayload));
+    } else {
+      alert("WebSocket is not connected or has been closed.");
+      console.error("Attempted to send a message on a closed WebSocket.");
     }
-  
+  };
 
   const toggleCell = (rowIndex, colIndex) => {
-    // Prevent toggling the "FREE" slot
-    if (boardArray[rowIndex][colIndex] === "FREE") return;
+    if (boardArray[rowIndex][colIndex] === "FREE") return; // Prevent toggling "FREE" cells
 
     setToggled((prev) => {
-      const newToggled = [...prev];
-      newToggled[rowIndex][colIndex] = !newToggled[rowIndex][colIndex];
+      const newToggled = prev.map((row, rIdx) =>
+        row.map((cell, cIdx) =>
+          rIdx === rowIndex && cIdx === colIndex ? !cell : cell
+        )
+      );
       return newToggled;
     });
   };
 
   const checkWinCondition = () => {
-    // Check rows and columns
     for (let i = 0; i < 5; i++) {
       if (
         toggled[i].every((cell) => cell) || // Check row
@@ -52,61 +102,41 @@ const GameBoard = ({ board, socket }) => {
     }
 
     // Check diagonals
-    const diagonal1 = toggled.map((row, idx) => row[idx]).every((cell) => cell); // Top-left to bottom-right
-    const diagonal2 = toggled.map((row, idx) => row[4 - idx]).every((cell) => cell); // Top-right to bottom-left
+    const diagonal1 = toggled.map((row, idx) => row[idx]).every((cell) => cell);
+    const diagonal2 = toggled.map((row, idx) => row[4 - idx]).every((cell) => cell);
 
     return diagonal1 || diagonal2;
   };
 
   const hasWon = checkWinCondition();
 
+  if (hasWon) {
+    setIsWinCondition(true)
+  }
+ else {
+  setIsWinCondition(false)
+ }
+  
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
-          gap: "10px",
-          justifyContent: "center",
-          color: "black",
-        }}
-      >
+    <BoardContainer>
+      <Grid>
         {boardArray.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
-            <div
+            <Cell
               key={`${rowIndex}-${colIndex}`}
-              onClick={() => toggleCell(rowIndex, colIndex)} // Toggle cell on click
-              style={{
-                width: "60px",
-                height: "60px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                border: "1px solid #ccc",
-                backgroundColor:
-                  toggled[rowIndex][colIndex] || cell === "FREE" ? "green" : "#fff",
-                cursor: "pointer", // Disable cursor for "FREE"
-                fontWeight: cell === "FREE" ? "bold" : "normal",
-              }}
+              toggled={toggled[rowIndex][colIndex]}
+              isFree={cell === "FREE"}
+              isHighlighted={cell.toString() === currentNumber.toString()} 
+              // Highlight if matches currentNumber
+              onClick={() => toggleCell(rowIndex, colIndex)}
             >
               {cell}
-            </div>
+            </Cell>
           ))
         )}
-      </div>
-      {hasWon && (
-        <button onClick={submit}
-          style={{
-            marginTop: "20px",
-            padding: "10px 20px",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}
-        >
-          Submit Bingo!
-        </button>
-      )}
-    </div>
+      </Grid>
+      
+    </BoardContainer>
   );
 };
 
