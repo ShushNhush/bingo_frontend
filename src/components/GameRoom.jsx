@@ -208,13 +208,14 @@ const GameRoom = () => {
   {gameOver ? (
     <GameOver winnerMessage={winnerMessage} socket={socket} navigate={navigate}></GameOver>
   ) : isConnected ? ( // Main Game UI
+    <>  
     <div className="main-container">
      
      <button className="home-button" onClick={() => navigate("/")}>
      <House />
      </button>
       <NextNumber currentNumber={currentNumber} />
-      <Notifications newMessage={currentNotification} />
+      
       <GameBoard
         board={player.board}
         socket={socket}
@@ -234,6 +235,8 @@ const GameRoom = () => {
         )}
       </div>
     </div>
+      <Notifications newMessage={currentNotification} />
+      </>
   ) : (
     <Loader /> // Loading UI
   )}
