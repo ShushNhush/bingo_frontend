@@ -173,7 +173,52 @@
   .submit:active {
     background: linear-gradient(32deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
   }
+
+  .game-over {
+    color: white;
+    text-align: center; /* Center content horizontally */
+    margin-top: 20px; /* Add some spacing */
+  }
   
+  .game-over button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 15px;
+    color: #212121;
+    background: #e8e8e8;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer; /* Add pointer cursor */
+    position: relative;
+    overflow: hidden;
+    transition: color 250ms ease;
+    z-index: 1;
+  }
+  
+  .game-over button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    border-radius: 15px;
+    background-color: rgba(0, 212, 255, 1);
+    z-index: -1;
+    transition: width 250ms ease;
+  }
+  
+  .game-over button:hover {
+    color: #e8e8e8; /* Text color on hover */
+  }
+  
+  .game-over button:hover::before {
+    width: 100%; /* Expand background on hover */
+  }
+  
+  .game-over button:active {
+    transform: scale(0.95); /* Add subtle button press effect */
+  }
   
  
   

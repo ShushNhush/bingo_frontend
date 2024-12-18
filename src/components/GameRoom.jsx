@@ -9,6 +9,7 @@ import NextNumber from "./NextNumber";
 import "../styles/GameRoom.css";
 import styled from "styled-components";
 import Loader from "../assets/Loader";
+import GameOver from "./GameOver";
 
 const SubmitButton = styled.button`
   margin-top: 20px;
@@ -26,6 +27,8 @@ const GameRoom = () => {
   const [currentNotification, setCurrentNotification] = useState(null);
   const [currentNumber, setCurrentNumber] = useState(null);
   const [isWinCondition, setIsWinCondition] = useState(false);
+  const [gameOver, setGameOver] = useState(null);
+  const [winnerMessage, setWinnerMessage] = useState("");
 
   const submit = () => {
     if (socket && socket.readyState === WebSocket.OPEN) {
@@ -132,8 +135,9 @@ const GameRoom = () => {
           const submitMessage = response.payload.message;
 
           if (isWinner) {
-            alert(submitMessage); // Display a message to the winner
-            addNotification(submitMessage); // Notify the room
+            setGameOver(true);
+            setWinnerMessage(submitMessage);
+          
           } else {
             alert(submitMessage); // Notify the submitter only
             addNotification(submitMessage);
@@ -164,6 +168,9 @@ const GameRoom = () => {
     };
   };
 
+  const navigateHome = () => {
+    navigate("/")
+  }
   const fetchBoard = async (roomNumber, playerId) => {
     try {
       const response = await fetch(
@@ -186,42 +193,40 @@ const GameRoom = () => {
   };
   return (
     <>
-      <video className="video-background" autoPlay loop muted playsInline>
-        <source src="/background.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+  <video className="video-background" autoPlay loop muted playsInline>
+    <source src="/background.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
 
-      {isConnected ? (
-        <div className="main-container">
-          <>
-            <NextNumber currentNumber={currentNumber} />
-
-            <Notifications newMessage={currentNotification} />
-            <GameBoard
-              board={player.board}
-              socket={socket}
-              currentNumber={currentNumber}
-              setIsWinCondition={setIsWinCondition}
-            />
-
-            <div className="button-container">
-              {player && host && player.id === host.id && (
-                <button onClick={pullNumber} className="pull">
-                  Pull Number
-                </button>
-              )}
-              {isWinCondition && (
-                <button onClick={submit} className="submit">
-                  Submit Bingo!
-                </button>
-              )}
-            </div>
-          </>
-        </div>
-      ) : (
-        <Loader></Loader>
-      )}
-    </>
+  {gameOver ? (
+    <GameOver winnerMessage={winnerMessage} socket={socket} navigate={navigate}></GameOver>
+  ) : isConnected ? ( // Main Game UI
+    <div className="main-container">
+      <NextNumber currentNumber={currentNumber} />
+      <Notifications newMessage={currentNotification} />
+      <GameBoard
+        board={player.board}
+        socket={socket}
+        currentNumber={currentNumber}
+        setIsWinCondition={setIsWinCondition}
+      />
+      <div className="button-container">
+        {player && host && player.id === host.id && (
+          <button onClick={pullNumber} className="pull">
+            Pull Number
+          </button>
+        )}
+        {isWinCondition && (
+          <button onClick={submit} className="submit">
+            Submit Bingo!
+          </button>
+        )}
+      </div>
+    </div>
+  ) : (
+    <Loader /> // Loading UI
+  )}
+</>
   );
 };
 
