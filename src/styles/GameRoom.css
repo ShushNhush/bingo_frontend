@@ -3,59 +3,67 @@
 .main-container {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Center vertically */
-    align-items: center; /* Center horizontally */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
     text-align: center;
     background: linear-gradient(34deg, rgba(255, 0, 93, 1) 0%, rgba(0, 212, 255, 1) 100%);
     border-radius: 20px;
     border: 2px solid violet;
     box-shadow: 0 0 10px violet;
-    width: 90%; /* Use 90% of the screen width */
+  
+    width: 90vw; /* Use 90% of the viewport width */
     max-width: 600px; /* Prevent it from being too wide on large screens */
-    margin: 10px auto; /* Center the container horizontally with margin */
+    margin: 0 auto; /* Center horizontally */
     height: auto;
-    min-height: 70vh; /* Ensure it takes up most of the screen height */
+    min-height: 70vh; /* Ensure a minimum height */
     padding: 20px;
     box-sizing: border-box;
+    overflow: hidden; /* Prevent content from overflowing */
   }
   
-  /* Responsive Styles */
-  @media (max-width: 768px) {
+  /* Background video styles */
+  .video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+  }
+  
+  /* Hide video on phone screens */
+  @media (max-width: 480px) {
+    .video-background {
+      display: none; /* Hide the video */
+    }
+  
     .main-container {
-      width: 95%; /* Increase width to use more space */
-      padding: 10px; /* Reduce padding for small screens */
-      min-height: 90vh; /* Make it taller on mobile */
-    }
-  
-    .button-container {
-      flex-direction: column; /* Stack buttons vertically */
-      gap: 10px; /* Add space between buttons */
-    }
-  
-    .pull, .submit {
-      width: 80%; /* Make buttons take up more space on smaller screens */
-      font-size: 14px; /* Reduce font size for better fit */
+      width: 100vw; /* Use full screen width */
+      height: 100vh; /* Take up full screen height */
+      border-radius: 0; /* Remove border radius for seamless layout */
+      padding: 15px;
     }
   }
   
+  /* Further adjustments for smaller phones */
   @media (max-width: 480px) {
     .main-container {
-      border-radius: 10px; /* Reduce border radius for smaller screens */
-      min-height: 100vh; /* Make it full height */
+      padding: 10px; /* Adjust padding for very small screens */
+      min-height: 100vh;
     }
   
-    .pull, .submit {
-      width: 100%; /* Buttons span full width */
-      padding: 0.5em; /* Adjust padding */
+    h1,
+    h3 {
+      font-size: 1.2em; /* Adjust font sizes */
+    }
+  
+    .pull,
+    .submit {
+      font-size: 12px;
+      padding: 0.5em;
     }
   }
-
-.button-container {
-
-    display: flex;
-    width: 100%;
-    justify-content: space-evenly;
-}
 
 .pull {
     position: relative;

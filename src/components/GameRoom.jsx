@@ -1,5 +1,4 @@
 import React from "react";
-import HostControls from "./HostControls";
 import GameBoard from "./GameBoard";
 import Chat from "./Chat";
 import Notifications from "./Notifications";
