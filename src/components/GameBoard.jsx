@@ -45,7 +45,7 @@ const Cell = styled.div`
     state === "toggled" ? "white" : "darkslategrey"};
 
   border-radius: 8px;
-  cursor: ${({ isFree }) => (isFree ? "not-allowed" : "pointer")};
+  cursor: ${({ isFree }) => (isFree = "pointer")};
 `;
 
 const GameBoard = ({ board, currentNumber, setIsWinCondition }) => {

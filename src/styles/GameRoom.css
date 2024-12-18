@@ -1,6 +1,7 @@
 
 
 .main-container {
+    position: relative; /* Needed for absolute positioning of children */
     display: flex;
     flex-direction: column;
     justify-content: center; /* Center content vertically */
@@ -221,4 +222,25 @@
   }
   
  
+  .home-button {
+    position: absolute; /* Position it relative to the nearest parent with position */
+    top: 10px; /* 10px from the top */
+    left: 10px; /* 10px from the left */
+    background: transparent; /* Remove button background */
+    border: none; /* Remove border */
+    cursor: pointer; /* Show pointer cursor on hover */
+    z-index: 10; /* Ensure it's above other elements */
+    padding: 5px; /* Add slight padding */
+  }
   
+  .home-button svg {
+    width: 30px; /* Set the size of the icon */
+    height: 30px;
+    color: white; /* Change icon color */
+    transition: transform 0.2s ease; /* Add a hover effect */
+  }
+  
+  .home-button:hover svg {
+    transform: scale(1.2); /* Slight scale on hover */
+    color: #f0f0f0; /* Lighter color on hover */
+  }

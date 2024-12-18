@@ -10,6 +10,7 @@ import "../styles/GameRoom.css";
 import styled from "styled-components";
 import Loader from "../assets/Loader";
 import GameOver from "./GameOver";
+import { House } from 'lucide-react';
 
 const SubmitButton = styled.button`
   margin-top: 20px;
@@ -81,18 +82,26 @@ const GameRoom = () => {
 
         setPlayer(playerData);
         setCurrentNumber(urlNumber);
-        initializeWebSocket(wsURL, playerData);
 
-        // Fetch the board
-        fetchBoard(decodedToken.roomNumber, decodedToken.id);
+
+        try {
+          initializeWebSocket(wsURL, playerData);
+          // Fetch the board
+          fetchBoard(decodedToken.roomNumber, decodedToken.id);
+        } catch (error) {
+          console.error("Error initializing WebSocket:", error.message);
+          navigate("/"); // Redirect if WebSocket initialization fails
+        }
       } else {
         // Token expired
         console.warn("Token has expired.");
         localStorage.removeItem("token");
+        navigate("/");
       }
     } catch (err) {
       console.error("Invalid token:", err.message);
       localStorage.removeItem("token");
+      navigate("/");
     }
   }, []);
 
@@ -168,9 +177,7 @@ const GameRoom = () => {
     };
   };
 
-  const navigateHome = () => {
-    navigate("/")
-  }
+
   const fetchBoard = async (roomNumber, playerId) => {
     try {
       const response = await fetch(
@@ -202,6 +209,10 @@ const GameRoom = () => {
     <GameOver winnerMessage={winnerMessage} socket={socket} navigate={navigate}></GameOver>
   ) : isConnected ? ( // Main Game UI
     <div className="main-container">
+     
+     <button className="home-button" onClick={() => navigate("/")}>
+     <House />
+     </button>
       <NextNumber currentNumber={currentNumber} />
       <Notifications newMessage={currentNotification} />
       <GameBoard
