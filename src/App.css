@@ -1,17 +1,11 @@
 #root {
-  max-width: 1280px;
+  /* max-width: 1280px; */
   margin: 0 auto;
   /* padding: 2rem; */
   text-align: center;
 }
 
-.main-content {
-  position: relative; /* Ensures content sits above the video */
-  z-index: 1;
-  color: white; /* Optional: Add color contrast for readability */
-  text-align: center;
-  padding: 20px;
-}
+
 
 .logo {
   height: 6em;

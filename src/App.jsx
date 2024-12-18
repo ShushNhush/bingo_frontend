@@ -21,7 +21,7 @@ const App = () => {
         <source src="/background.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-    <div style={{ padding: "20px" }}>
+    <div>
       
         <RoomControls
           redirectToRoom={redirectToRoom}

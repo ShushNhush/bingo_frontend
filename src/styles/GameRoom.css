@@ -65,6 +65,12 @@
     }
   }
 
+  .button-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+  }
+
 .pull {
     position: relative;
     font-size: 17px;
