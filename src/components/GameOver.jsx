@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "../styles/GameOver.css";
 
 const GameOver = ({ winnerMessage, socket, navigate }) => {
   const [countdown, setCountdown] = useState(15);
