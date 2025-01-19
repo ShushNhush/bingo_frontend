@@ -53,20 +53,38 @@ const GameBoard = ({ board, currentNumber, setIsWinCondition, pulledNumbers }) =
 
   // Initialize cell states with proper type conversion
   const [cellStates, setCellStates] = useState(() => {
-    console.log("Initializing with pulled numbers:", pulledNumbers);
+    
     return boardArray.map((row) =>
       row.map((cell) => {
         if (cell === "FREE") return "toggled";
-        // Convert cell to number before comparison
-        const cellNumber = parseInt(cell, 10);
-        if (Array.isArray(pulledNumbers) && pulledNumbers.includes(cellNumber)) {
-          console.log(`Setting ${cell} (${cellNumber}) as highlighted`);
-          return "highlighted";
-        }
+        // // Convert cell to number before comparison
+        // const cellNumber = parseInt(cell, 10);
+        // if (Array.isArray(pulledNumbers) && pulledNumbers.includes(cellNumber)) {
+          
+        //   return "highlighted";
+        // }
         return "default";
       })
     );
   });
+
+  useEffect(() => {
+    if (!Array.isArray(pulledNumbers) || pulledNumbers.length === 0) return;
+
+    // Update cell states whenever pulledNumbers or boardArray changes
+    setCellStates((prev) =>
+      prev.map((row, rowIndex) =>
+        row.map((cellState, colIndex) => {
+          const cellValue = parseInt(boardArray[rowIndex][colIndex], 10);
+
+          // If the cell value is in pulledNumbers, mark it as "highlighted"
+          return pulledNumbers.includes(cellValue)
+            ? "highlighted"
+            : cellState;
+        })
+      )
+    );
+  }, [pulledNumbers, boardArray]);
 
   // Rest of the component stays the same...
   useEffect(() => {
