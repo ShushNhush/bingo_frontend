@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, useParams } from "react-router-dom";
 import NextNumber from "./NextNumber";
-// import "../styles/GameRoom.css";
+
 import styled from "styled-components";
 import Loader from "../assets/Loader";
 import GameOver from "./GameOver";
