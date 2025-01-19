@@ -1,6 +1,19 @@
 
+.page {
+
+  display: grid;
+  
+  width: 100vw;
+  height: 100vh;
+
+
+}
 
 .main-container {
+
+  
+
+  align-self: center;
     position: relative; /* Needed for absolute positioning of children */
     display: flex;
     flex-direction: column;
@@ -17,6 +30,7 @@
     margin: 0 auto; /* Center horizontally */
     height: auto;
     min-height: 70vh; /* Ensure a minimum height */
+    /* max-height: 70vh; */
     padding: 20px;
     box-sizing: border-box;
     overflow: hidden; /* Prevent content from overflowing */
@@ -33,6 +47,29 @@
     z-index: -1;
   }
   
+  @media (min-width: 1024px) {
+
+    .page {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .main-container {
+
+      grid-column: 2 / 3;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px)  {
+
+    .page {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .main-container {
+
+      grid-column: 1 / 2;
+    }
+  }
   /* Hide video on phone screens */
   @media (max-width: 480px) {
     .video-background {
@@ -53,6 +90,7 @@
       padding: 10px; /* Adjust padding for very small screens */
       min-height: 100vh;
     }
+    
   
     h1,
     h3 {

@@ -6,18 +6,29 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, useParams } from "react-router-dom";
 import NextNumber from "./NextNumber";
-import "../styles/GameRoom.css";
+// import "../styles/GameRoom.css";
 import styled from "styled-components";
 import Loader from "../assets/Loader";
 import GameOver from "./GameOver";
-import { House } from 'lucide-react';
+import { House, MessageCircle, MessageCircleOff} from 'lucide-react';
 
-const SubmitButton = styled.button`
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-`;
+import {
+  Page,
+  MainContainer,
+  VideoBackground,
+  ButtonContainer,
+  PullButton,
+  SubmitButton,
+  HomeButton,
+  ChatButton,
+} from "../styles/GameRoomStyles";
+
+// const SubmitButton = styled.button`
+//   margin-top: 20px;
+//   padding: 10px 20px;
+//   font-size: 16px;
+//   cursor: pointer;
+// `;
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -35,6 +46,7 @@ const GameRoom = () => {
   const [gameOver, setGameOver] = useState(null);
   const [winnerMessage, setWinnerMessage] = useState("");
   const [pulledNumbers, setPulledNumbers] = useState(0);
+  const [activateChat, setActivateChat] = useState(false);
 
   const submit = () => {
     if (socket && socket.readyState === WebSocket.OPEN) {
@@ -134,8 +146,13 @@ const GameRoom = () => {
           break;
 
         case "chat":
-          const message =
-            response.payload.sender + ": " + response.payload.message;
+          
+          const message = {
+            "sender": response.payload.sender,
+            "message": response.payload.message
+          }
+          
+          response.payload.message;
           setMessages((prevMessages) => [...prevMessages, message]);
           break;
 
@@ -209,50 +226,59 @@ const GameRoom = () => {
       console.error("Error fetching board:", error.message);
     }
   };
+
+  const toggleChat = () => {
+
+    {activateChat === true ? setActivateChat(false) : setActivateChat(true)}
+    
+  }
   return (
     <>
-  <video className="video-background" autoPlay loop muted playsInline>
-    <source src="/background.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
+      <VideoBackground autoPlay loop muted playsInline>
+        <source src="/background.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </VideoBackground>
 
-  {gameOver ? (
-    <GameOver winnerMessage={winnerMessage} socket={socket} navigate={navigate}></GameOver>
-  ) : isConnected ? ( // Main Game UI
-    <>  
-    <div className="main-container">
-     
-     <button className="home-button" onClick={() => navigate("/")}>
-     <House />
-     </button>
-      <NextNumber currentNumber={currentNumber} />
-      
-      <GameBoard
-        board={player.board}
-        socket={socket}
-        currentNumber={currentNumber}
-        setIsWinCondition={setIsWinCondition}
-        pulledNumbers={pulledNumbers}
-      />
-      <div className="button-container">
-        {player && host && player.id === host.id && (
-          <button onClick={pullNumber} className="pull">
-            Pull Number
-          </button>
-        )}
-        {isWinCondition && (
-          <button onClick={submit} className="submit">
-            Submit Bingo!
-          </button>
-        )}
-      </div>
-    </div>
-      <Notifications newMessage={currentNotification} />
-      </>
-  ) : (
-    <Loader /> // Loading UI
-  )}
-</>
+      {gameOver ? (
+        <GameOver
+          winnerMessage={winnerMessage}
+          socket={socket}
+          navigate={navigate}
+        />
+      ) : isConnected ? (
+        <Page isChat={activateChat}>
+          <MainContainer isChat={activateChat}>
+            <HomeButton onClick={() => navigate("/")}>
+              <House />
+            </HomeButton>
+            <ChatButton onClick={() => toggleChat()}>
+              {activateChat === false ? <MessageCircle/> : <MessageCircleOff/>}
+            </ChatButton>
+            <NextNumber currentNumber={currentNumber} />
+            <GameBoard
+              board={player.board}
+              socket={socket}
+              currentNumber={currentNumber}
+              setIsWinCondition={setIsWinCondition}
+              pulledNumbers={pulledNumbers}
+            />
+            <ButtonContainer>
+              {player && host && player.id === host.id && (
+                <PullButton onClick={pullNumber}>Pull Number</PullButton>
+              )}
+              {isWinCondition && (
+                <SubmitButton onClick={submit}>Submit Bingo!</SubmitButton>
+              )}
+            </ButtonContainer>
+          </MainContainer>
+          {activateChat && <Chat messages={messages} socket={socket} />}
+          
+          <Notifications newMessage={currentNotification} />
+        </Page>
+      ) : (
+        <Loader />
+      )}
+    </>
   );
 };
 
