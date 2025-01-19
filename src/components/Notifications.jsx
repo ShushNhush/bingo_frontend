@@ -8,6 +8,11 @@ const NotificationsContainer = styled.div`
   max-width: 300px;
   width: 200px;
   z-index: 1000;
+
+  @media (max-width: 480px) {
+
+    display: none;
+  }
 `;
 
 const NotificationItem = styled.li.withConfig({
