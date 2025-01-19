@@ -112,7 +112,7 @@ const GameRoom = () => {
 
   const initializeWebSocket = (wsURL, playerData) => {
     const ws = new WebSocket(wsURL);
-    console.log("websocketurl in App initialize: " + wsURL);
+    // console.log("websocketurl in App initialize: " + wsURL);
 
     ws.onopen = () => {
       console.log("WebSocket connected successfully");
