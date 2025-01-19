@@ -32,8 +32,9 @@ const MainContent = styled.div`
     width: 100vw; /* Use full screen width */
       height: 100vh; /* Take up full screen height */
       border-radius: 0; /* Remove border radius for seamless layout */
-      padding: 15px;
+      padding: 0px;
       justify-content: center;
+      overflow: hidden;
 
       h1 {
         font-size: 4rem;
