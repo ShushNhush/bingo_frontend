@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 
-// Styled Components
+// Styled components stay the same...
 const BoardContainer = styled.div`
   padding: 20px;
   text-align: center;
@@ -23,7 +23,6 @@ const Cell = styled.div`
   align-items: center;
   font-family: Impact, fantasy;
 
-  /* Dynamic Styling */
   border: ${({ state }) =>
     state === "highlighted"
       ? "2px solid red"
@@ -41,44 +40,53 @@ const Cell = styled.div`
   box-shadow: ${({ state }) =>
     state === "highlighted" ? "0 0 10px red" : "none"};
 
-  color: ${({ state }) =>
-    state === "toggled" ? "white" : "darkslategrey"};
+  color: ${({ state }) => (state === "toggled" ? "white" : "darkslategrey")};
 
   border-radius: 8px;
-  cursor: ${({ isFree }) => (isFree = "pointer")};
+  cursor: ${({ isFree }) => (isFree ? "default" : "pointer")};
 `;
 
-const GameBoard = ({ board, currentNumber, setIsWinCondition }) => {
+const GameBoard = ({ board, currentNumber, setIsWinCondition, pulledNumbers }) => {
   if (!board) return <p>No board data available</p>;
 
-  // Memoize boardArray to prevent unnecessary recreation
   const boardArray = useMemo(() => JSON.parse(board), [board]);
 
-  // State to manage cell states: 'default', 'highlighted', or 'toggled'
-  const [cellStates, setCellStates] = useState(
-    boardArray.map((row) =>
-      row.map((cell) => (cell === "FREE" ? "toggled" : "default")) // Set "FREE" as "toggled"
-    )
-  );
+  // Initialize cell states with proper type conversion
+  const [cellStates, setCellStates] = useState(() => {
+    console.log("Initializing with pulled numbers:", pulledNumbers);
+    return boardArray.map((row) =>
+      row.map((cell) => {
+        if (cell === "FREE") return "toggled";
+        // Convert cell to number before comparison
+        const cellNumber = parseInt(cell, 10);
+        if (Array.isArray(pulledNumbers) && pulledNumbers.includes(cellNumber)) {
+          console.log(`Setting ${cell} (${cellNumber}) as highlighted`);
+          return "highlighted";
+        }
+        return "default";
+      })
+    );
+  });
 
-  // Update highlight state when currentNumber changes
+  // Rest of the component stays the same...
   useEffect(() => {
+    if (!currentNumber) return;
+
     setCellStates((prev) =>
       prev.map((row, rowIndex) =>
-        row.map((cell, colIndex) => {
+        row.map((cellState, colIndex) => {
+          if (cellState === "toggled") return cellState;
+          
           const isCurrentNumber =
-            boardArray[rowIndex][colIndex].toString() === currentNumber?.toString();
-          return isCurrentNumber && prev[rowIndex][colIndex] !== "toggled"
-            ? "highlighted"
-            : prev[rowIndex][colIndex];
+            boardArray[rowIndex][colIndex].toString() === currentNumber.toString();
+          return isCurrentNumber ? "highlighted" : cellState;
         })
       )
     );
   }, [currentNumber, boardArray]);
 
-  // Handle cell click
   const handleCellClick = (rowIndex, colIndex) => {
-    if (boardArray[rowIndex][colIndex] === "FREE") return; // Prevent clicks on FREE cells
+    if (boardArray[rowIndex][colIndex] === "FREE") return;
 
     setCellStates((prev) =>
       prev.map((row, rIdx) =>
@@ -92,7 +100,6 @@ const GameBoard = ({ board, currentNumber, setIsWinCondition }) => {
     );
   };
 
-  // Check for a win condition (row, column, diagonal)
   useEffect(() => {
     const checkWinCondition = () => {
       // Check rows
@@ -118,9 +125,7 @@ const GameBoard = ({ board, currentNumber, setIsWinCondition }) => {
       return false;
     };
 
-    // Update win condition in parent
-    const hasWon = checkWinCondition();
-    setIsWinCondition(hasWon);
+    setIsWinCondition(checkWinCondition());
   }, [cellStates, setIsWinCondition]);
 
   return (

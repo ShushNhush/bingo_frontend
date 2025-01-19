@@ -5,6 +5,8 @@ import ToggleSwitch from "./ToggleSwitch";
 import { MainContent, ToggleSwitchWrapper, FormContainer} from "../styles/HomeStyle";
 
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const RoomControls = ({ redirectToRoom }) => {
   const [formType, setFormType] = useState("create");
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
@@ -23,7 +25,7 @@ const RoomControls = ({ redirectToRoom }) => {
     const { hostName, rules = "Default rules" } = formJson;
 
     try {
-      const response = await fetch("https://bingoapi.gudbergsen.com/api/rooms", {
+      const response = await fetch(BASE_URL + "/rooms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ room: { rules }, player: { name: hostName } }),
@@ -51,7 +53,7 @@ const RoomControls = ({ redirectToRoom }) => {
     try {
       const roomNumber = parseInt(roomNumberInput, 10);
       const response = await fetch(
-        `https://bingoapi.gudbergsen.com/api/rooms/${roomNumber}/join`,
+        `${BASE_URL}/rooms/${roomNumber}/join`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

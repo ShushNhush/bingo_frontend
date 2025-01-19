@@ -19,6 +19,10 @@ const SubmitButton = styled.button`
   cursor: pointer;
 `;
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const BASE_WS_URL = import.meta.env.VITE_WS_API_URL;
+
 const GameRoom = () => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -30,6 +34,7 @@ const GameRoom = () => {
   const [isWinCondition, setIsWinCondition] = useState(false);
   const [gameOver, setGameOver] = useState(null);
   const [winnerMessage, setWinnerMessage] = useState("");
+  const [pulledNumbers, setPulledNumbers] = useState(0);
 
   const submit = () => {
     if (socket && socket.readyState === WebSocket.OPEN) {
@@ -77,7 +82,7 @@ const GameRoom = () => {
       const currentTime = Math.floor(Date.now() / 1000);
 
       if (decodedToken.exp > currentTime) {
-        const wsURL = `wss://bingoapi.gudbergsen.com/api/rooms/${decodedToken.roomNumber}`;
+        const wsURL = `${BASE_WS_URL}/rooms/${decodedToken.roomNumber}`;
         const playerData = { id: decodedToken.id, name: decodedToken.sub };
 
         setPlayer(playerData);
@@ -124,6 +129,7 @@ const GameRoom = () => {
       switch (response.type) {
         case "join":
           const playerJoined = response.payload.playerName + " joined the room";
+          // console.log(response.payload)
           addNotification(playerJoined);
           break;
 
@@ -139,6 +145,11 @@ const GameRoom = () => {
           // addNotification(`Next number: ${nextNumber}`);
           break;
 
+        case "pulledNumbers":
+        console.log(response.payload)
+        const pulledNumbers = response.payload.pulledNumbers;
+        setPulledNumbers(pulledNumbers)
+        break;
         case "submit-result":
           const isWinner = response.payload.isWinner;
           const submitMessage = response.payload.message;
@@ -181,7 +192,7 @@ const GameRoom = () => {
   const fetchBoard = async (roomNumber, playerId) => {
     try {
       const response = await fetch(
-        `https://bingoapi.gudbergsen.com/api/rooms/${roomNumber}/players/${playerId}`,
+        `${BASE_URL}/rooms/${roomNumber}/players/${playerId}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -221,6 +232,7 @@ const GameRoom = () => {
         socket={socket}
         currentNumber={currentNumber}
         setIsWinCondition={setIsWinCondition}
+        pulledNumbers={pulledNumbers}
       />
       <div className="button-container">
         {player && host && player.id === host.id && (
